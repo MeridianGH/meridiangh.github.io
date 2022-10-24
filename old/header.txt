@@ -1,0 +1,160 @@
+# HTML
+<header>
+  <nav>
+    <a class="nav-link" href="#about-me">About me</a>
+    <a class="nav-link" href="#timeline">Timeline</a>
+    <img class="logo" src="assets/monogram.png" alt="Monogram Logo">
+    <div class="logo-divider"></div>
+    <img class="logo" src="assets/logo.png" alt="M Logo">
+    <a class="nav-link" href="#my-skills">Skills</a>
+    <a class="nav-link" href="#projects">Projects</a>
+  </nav>
+  <p class="typewriter">Hi, I'm Lukas!</p>
+</header>
+
+
+
+# CSS
+header {
+    --expanded-height: 100vh;
+    --collapsed-height: 50px;
+
+    position: sticky;
+    top: calc((var(--expanded-height) - var(--collapsed-height)) * -1);
+    overflow: hidden;
+    z-index: 1;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+
+    height: var(--expanded-height);
+
+    background-color: rgba(var(--header), 0);
+    background-image: url("https://media.jungfrau.ch/image/upload/ar_16:8,c_crop,fl_lossy,q_auto/c_scale,w_1654/v1555595671/fileadmin/Grindelwald_First_Sommer/Bachalpsee-Sommer-Wetterhorn-Schreckhorn-Abendstimmung.jpg");
+    background-blend-mode: hue;
+    background-size: cover;
+    background-position: center;
+    color: #ffffff;
+}
+
+nav {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 300px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.nav-link {
+    color: #ffffff;
+    opacity: 0;
+    white-space: nowrap;
+    flex: 1 1 0;
+    text-align: center;
+    transition: color 0.5s;
+}
+.nav-link:hover {
+    color: #888888;
+}
+
+.typewriter {
+    padding-top: 30px;
+    min-height: 2em;
+    font-size: large;
+    font-family: Consolas, monospace;
+    text-align: center;
+    transition: opacity 1s;
+}
+
+
+
+# JS
+
+function typewriter() {
+  const element = document.querySelector('.typewriter')
+  let text = 'Hi, I\'m Lukas!'
+  const options = ['Hi, I\'m Lukas!', 'I love coding.', 'I am creative.']
+  let current = 0
+  let deleting = true
+  const tick = () => {
+    // This function runs exactly 69 times. Nice!
+    const fullText = options[current]
+    text = fullText.substring(0, text.length + (deleting ? -1 : 1))
+    element.innerHTML = text
+
+    let timeout = 200 - Math.random() * 100
+    if (deleting) { timeout /= 2 }
+
+    if (!deleting && text === fullText) {
+      timeout = 2000
+      deleting = true
+    } else if (deleting && text === '') {
+      timeout = 500
+      deleting = false
+      current += 1
+    }
+
+    if (current >= options.length) {
+      element.style.opacity = '0'
+      setTimeout(() => {
+        element.innerHTML = options.join(' ')
+        element.style.opacity = '1'
+      }, 1000)
+      return
+    }
+
+    setTimeout(() => { tick() }, timeout)
+  }
+  tick()
+}
+
+// Parallax header
+const header = document.querySelector('header')
+const navbar = document.querySelector('nav')
+const headerHeight = header.clientHeight
+const headerCollapsedHeight = Number(getComputedStyle(header).getPropertyValue('--collapsed-height').replace('px', ''))
+const navbarOriginalHeight = navbar.clientHeight
+
+const scrollTimeline = new ScrollTimeline({
+  source: document.documentElement,
+  orientation: 'vertical',
+  scrollOffsets: [CSS.px(0), CSS.px(headerHeight - headerCollapsedHeight)]
+})
+navbar.animate({ height: [`${navbarOriginalHeight}px`, `${headerCollapsedHeight}px`] }, { timeline: scrollTimeline, fill: 'forwards' })
+for (const child of navbar.children) { child.animate(child.classList.contains('nav-link') ? { opacity: [0, 1] } : { transform: ['scale(1)', `scale(${headerCollapsedHeight / navbarOriginalHeight})`] }, { timeline: scrollTimeline, fill: 'forwards' }) }
+header.animate({
+  height: [CSS.px(headerHeight), CSS.px(headerCollapsedHeight)],
+  paddingTop: [CSS.px(0), CSS.px(headerHeight - headerCollapsedHeight)],
+  backgroundColor: ['rgba(var(--header), 0)', 'rgba(var(--header), 1)']
+}, { timeline: scrollTimeline, fill: 'forwards' })
+setTimeout(() => { navbar.style.opacity = '1' }, 1000)
+
+/* Old handler
+document.addEventListener('scroll', setHeader)
+function setHeader() {
+  const intersectionHeight = header.getBoundingClientRect().bottom
+  const ratio = 1 - (intersectionHeight - headerCollapsedHeight) / (headerHeight - headerCollapsedHeight)
+  const scale = Math.min(intersectionHeight / navbarOriginalHeight, 1)
+
+  setRootProperty('--headerOpacity', ratio)
+  header.style.height = `${intersectionHeight}px`
+  header.style.paddingTop = `${headerHeight - intersectionHeight}px`
+  navbar.style.height = `${Math.min(intersectionHeight, navbarOriginalHeight)}px`
+  for (const child of navbar.children) {
+    if (child.classList.contains('nav-link')) {
+      child.style.opacity = `${ratio}`
+    } else {
+      child.style.transform = `scale(${scale})`
+    }
+  }
+}
+setHeader()
+*/
