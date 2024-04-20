@@ -6,6 +6,26 @@ window.onload = () => {
     document.documentElement.style.setProperty(property, value)
   }
 
+  // Scrollers
+  const scrollers = document.querySelectorAll(".scroll-container")
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    scrollers.forEach((scroller) => {
+      // add data-animated="true" to every `.scroller` on the page
+      scroller.setAttribute('data-animated', true)
+
+      // Make array from elements
+      const scrollerInner = scroller.querySelector(".scroller")
+      const scrollerContent = Array.from(scrollerInner.children)
+
+      scrollerContent.forEach((item) => {
+        const duplicate = item.cloneNode(true)
+        duplicate.setAttribute('aria-hidden', true)
+        scrollerInner.appendChild(duplicate)
+      })
+    })
+  }
+
 
   // Parallax header
   const header = document.querySelector('header')
